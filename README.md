@@ -17,9 +17,9 @@ Se han configurado dos redes Wi-Fi (SSID) emitiendo desde la misma antena físic
 Aquí dejo el bloque de comandos para aplicar la configuración desde cero en la consola Cisco:
 '''bash
 configure terminal
-dot11 mbssid ( sirve para habilitar la emisión de múltiples SSID)
+dot11 mbssid (sirve para habilitar la emisión de múltiples SSID)
 
-dot11 ssid Red_Segura_IoT ( configuración OCULTA de la Red IoT)
+dot11 ssid Red_Segura_IoT (configuración OCULTA de la Red IoT)
   vlan 1
   authentication open
   authentication key-management wpa version 2
@@ -34,7 +34,7 @@ dot11 ssid wi-fi_Invitados ( configuración VISIBLE de la Red Invitados)
   guest-mode 
   exit
 
-interface Dot11Radio0 ( configuración de la Antena Física)
+interface Dot11Radio0 (configuración de la Antena Física)
   encryption vlan 1 mode ciphers aes-ccm
   encryption vlan 2 mode ciphers aes-ccm
   ssid Red_Segura_IoT
@@ -43,7 +43,7 @@ interface Dot11Radio0 ( configuración de la Antena Física)
   no shutdown
   exit
 
-interface Dot11Radio0.2 ( configuración el puente y el aislamiento para invitados)
+interface Dot11Radio0.2 (configuración el puente y el aislamiento para invitados)
   encapsulation dot1Q 2
   bridge-group 1
   bridge-group 1 port-protected
@@ -58,4 +58,7 @@ Durante la configuración en el sistema Cisco IOS, me he encontrado con varios r
     - PROBLEMAS: Tras configurar el primer SSID, la interfaz Dot11Radio0 se quedaba en estado apagado y lanzaba errores de consola.
     - CAUSA: En las versiones de Cisco IOS para estos equipos, es obligatorio que cada SSID tenga asignada una VLAN para que la radio pueda procesar el tráfico.
     - SOLUCIÓN: Asignar explicitamente vlan 1 a la red IoT y vlan 2 a la red Invitados dentro de la configuración del SSID.
-  2.- 
+  2.- Móviles atrapados en "Buscando..." (intentando obtener la dirección IP)
+    - PROBLEMAS: Al crear la red de invitados e intentar conectar un dispositivo, este se quedaba en un bucle infinito intentando conectarse.
+    - CAUSA: Aunque creé la tubería (VLAN 2) para la red de Invitados, no le había indicado a la antena qué traductor de cifrado usar para esa VLAN especifica. El dispositivo intentaba negociar en WPA2, pero la antena no         lo entendía.
+    - SOLUCIÓN: Aplicar el cifrado AES a la VLAN 2 directamente dentro de la interfaz física con el comando: encryption vlan 2 mode ciphers aes-ccm.
